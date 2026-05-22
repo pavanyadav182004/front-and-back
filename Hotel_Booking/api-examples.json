@@ -1,0 +1,101 @@
+{
+  "registerUser": {
+    "method": "POST",
+    "url": "http://localhost:8082/api/auth/register",
+    "body": {
+      "name": "Rahul Kumar",
+      "email": "rahul@example.com",
+      "password": "user123",
+      "imageUrl": "https://i.pravatar.cc/100?img=12"
+    }
+  },
+  "registerFirstAdminOnly": {
+    "method": "POST",
+    "url": "http://localhost:8082/api/auth/admin/register",
+    "body": {
+      "name": "Admin",
+      "email": "admin@example.com",
+      "password": "admin123",
+      "imageUrl": "https://i.pravatar.cc/100?img=5"
+    }
+  },
+  "login": {
+    "method": "POST",
+    "url": "http://localhost:8082/api/auth/login",
+    "body": {
+      "email": "admin@example.com",
+      "password": "admin123"
+    }
+  },
+  "addHotelAdmin": {
+    "method": "POST",
+    "url": "http://localhost:8082/api/hotels",
+    "headers": {
+      "Authorization": "Bearer ADMIN_TOKEN"
+    },
+    "body": {
+      "name": "Lake View Palace",
+      "city": "Udaipur",
+      "address": "Lake Road, Udaipur",
+      "location": "Udaipur - Lake Road",
+      "description": "Premium stay with lake view rooms.",
+      "pricePerNight": 4200,
+      "rating": 4.6,
+      "imageUrl": "https://images.unsplash.com/photo-1566073771259-6a8506099945",
+      "roomType": "Luxury Room",
+      "available": true,
+      "amenities": ["Free Wi-Fi", "Room Service", "Free Breakfast"]
+    }
+  },
+  "checkAvailableRooms": {
+    "method": "GET",
+    "url": "http://localhost:8082/api/rooms/available?hotelId=1&checkIn=2026-05-10&checkOut=2026-05-12"
+  },
+  "createBookingUser": {
+    "method": "POST",
+    "url": "http://localhost:8082/api/bookings",
+    "headers": {
+      "Authorization": "Bearer USER_TOKEN"
+    },
+    "body": {
+      "hotelId": 1,
+      "roomId": 1,
+      "checkIn": "2026-05-10",
+      "checkOut": "2026-05-12",
+      "guests": 2
+    }
+  },
+  "confirmPayment": {
+    "method": "POST",
+    "url": "http://localhost:8082/api/payments",
+    "headers": {
+      "Authorization": "Bearer USER_TOKEN"
+    },
+    "body": {
+      "bookingId": 1
+    }
+  },
+  "adminBookings": {
+    "method": "GET",
+    "url": "http://localhost:8082/api/bookings/admin",
+    "headers": {
+      "Authorization": "Bearer ADMIN_TOKEN"
+    }
+  },
+  "forgotPassword": {
+    "method": "POST",
+    "url": "http://localhost:8082/api/auth/forgot-password",
+    "body": {
+      "email": "rahul@example.com"
+    }
+  },
+  "resetPassword": {
+    "method": "POST",
+    "url": "http://localhost:8082/api/auth/reset-password",
+    "body": {
+      "email": "rahul@example.com",
+      "otp": "123456",
+      "newPassword": "newuser123"
+    }
+  }
+}
