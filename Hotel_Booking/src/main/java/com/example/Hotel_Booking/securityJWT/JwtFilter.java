@@ -27,9 +27,10 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
+    @SuppressWarnings("null")
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
@@ -74,15 +75,12 @@ public class JwtFilter extends OncePerRequestFilter {
                     System.out.println("AUTH ROLE: " + role);
 
                     // Authority set
-                    SimpleGrantedAuthority authority =
-                            new SimpleGrantedAuthority(role);
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
 
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(
-                                    email,
-                                    null,
-                                    List.of(authority)
-                            );
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                            email,
+                            null,
+                            List.of(authority));
 
                     // 🔐 Set authentication
                     SecurityContextHolder.getContext().setAuthentication(auth);

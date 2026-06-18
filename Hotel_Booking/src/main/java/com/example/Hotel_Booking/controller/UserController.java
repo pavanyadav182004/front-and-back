@@ -36,7 +36,9 @@ public class UserController {
                 .orElseThrow(() -> new CustomException("User not found"));
 
         user.setImageUrl(imageUrl);
-        userRepository.save(user);
+        @SuppressWarnings("null")
+        User image = user;
+        userRepository.save(image);
 
         return new ResponseDTO(true, "Profile image updated successfully", imageUrl);
     }
@@ -64,7 +66,10 @@ public class UserController {
             user.setGender(payload.get("gender"));
         }
 
-        userRepository.save(user);
+        @SuppressWarnings("null")
+        User updatedUser = user;
+        @SuppressWarnings({ "null", "unused" })
+        Object result = userRepository.save(updatedUser);
 
         Map<String, Object> data = new HashMap<>();
         data.put("id", user.getId());

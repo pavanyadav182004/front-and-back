@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -18,7 +17,6 @@ import com.example.Hotel_Booking.entity.User;
 import com.example.Hotel_Booking.enums.BookingStatus;
 import com.example.Hotel_Booking.exception.CustomException;
 import com.example.Hotel_Booking.repository.BookingRepository;
-import com.example.Hotel_Booking.repository.HotelRepository;
 import com.example.Hotel_Booking.repository.ReviewRepository;
 import com.example.Hotel_Booking.repository.RoomRepository;
 import com.example.Hotel_Booking.repository.UserRepository;
@@ -30,20 +28,17 @@ import jakarta.transaction.Transactional;
 public class BookingService {
 
     private final BookingRepository bookingRepo;
-    private final HotelRepository hotelRepo;
     private final RoomRepository roomRepo;
     private final UserRepository userRepo;
     private final ReviewRepository reviewRepo;
     private final EmailService emailService;
 
     public BookingService(BookingRepository bookingRepo,
-            HotelRepository hotelRepo,
             RoomRepository roomRepo,
             UserRepository userRepo,
             ReviewRepository reviewRepo,
             EmailService emailService) {
         this.bookingRepo = bookingRepo;
-        this.hotelRepo = hotelRepo;
         this.roomRepo = roomRepo;
         this.userRepo = userRepo;
         this.reviewRepo = reviewRepo;
@@ -85,6 +80,7 @@ public class BookingService {
             throw new CustomException("Invalid date range");
 
         // Room fetch
+        @SuppressWarnings("null")
         Room room = roomRepo.findById(dto.getRoomId())
                 .orElseThrow(() -> new CustomException("Room not found"));
 
@@ -148,6 +144,7 @@ public class BookingService {
             throw new CustomException("User not authenticated");
         }
 
+        @SuppressWarnings("null")
         Booking booking = bookingRepo.findById(id)
                 .orElseThrow(() -> new CustomException("Booking not found"));
 
@@ -182,12 +179,14 @@ public class BookingService {
             throw new CustomException("User not authenticated");
         }
 
+        @SuppressWarnings("null")
         Booking booking = bookingRepo.findById(id)
                 .orElseThrow(() -> new CustomException("Booking not found"));
 
         User user = userRepo.findByEmail(email).orElseThrow(() -> new CustomException("User not found"));
-        
-        if (!booking.getUser().getEmail().equals(email) && !user.getRole().name().equals("ADMIN") && !user.getRole().name().equals("HOTEL_OWNER")) {
+
+        if (!booking.getUser().getEmail().equals(email) && !user.getRole().name().equals("ADMIN")
+                && !user.getRole().name().equals("HOTEL_OWNER")) {
             throw new CustomException("Unauthorized to checkout this booking");
         }
 
@@ -218,12 +217,12 @@ public class BookingService {
     public void autoCheckoutBookings() {
         List<Booking> expiredBookings = bookingRepo.findByStatusAndCheckOutLessThanEqual(
                 BookingStatus.CONFIRMED, LocalDate.now());
-                
+
         for (Booking booking : expiredBookings) {
             booking.setStatus(BookingStatus.CHECKED_OUT);
             bookingRepo.save(booking);
             syncBookedRooms(booking.getRoom());
-            
+
             try {
                 emailService.sendCheckoutEmail(booking);
             } catch (Exception e) {

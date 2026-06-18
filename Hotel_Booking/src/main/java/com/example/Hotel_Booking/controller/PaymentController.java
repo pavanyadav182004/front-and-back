@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.Hotel_Booking.dto.PaymentDTO;
 import com.example.Hotel_Booking.dto.ResponseDTO;
-import com.example.Hotel_Booking.entity.Payment;
 import com.example.Hotel_Booking.service.PaymentService;
 
 @RestController
@@ -28,8 +27,7 @@ public class PaymentController {
         return new ResponseDTO(
                 true,
                 "Payment successful. Booking confirmed!",
-                paymentService.makePayment(dto.getBookingId(), dto.getRazorpayOrderId())
-        );
+                paymentService.makePayment(dto.getBookingId(), dto.getRazorpayOrderId()));
     }
 
     @PostMapping("/create-order/{bookingId}")

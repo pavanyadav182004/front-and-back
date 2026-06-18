@@ -18,11 +18,12 @@ public class RoomService {
     private final HotelRepository hotelRepo;
 
     public RoomService(RoomRepository roomRepo, HotelRepository hotelRepo) {
-        this.roomRepo  = roomRepo;
+        this.roomRepo = roomRepo;
         this.hotelRepo = hotelRepo;
     }
 
     /** ADMIN: add a room to a hotel */
+    @SuppressWarnings("null")
     public Room addRoom(Long hotelId, Room room) {
         Hotel hotel = hotelRepo.findById(hotelId)
                 .orElseThrow(() -> new CustomException("Hotel not found"));
@@ -31,6 +32,7 @@ public class RoomService {
     }
 
     /** ADMIN: update a room */
+    @SuppressWarnings("null")
     public Room updateRoom(Long roomId, Room roomDetails) {
         Room room = roomRepo.findById(roomId)
                 .orElseThrow(() -> new CustomException("Room not found"));
@@ -43,6 +45,7 @@ public class RoomService {
     }
 
     /** ADMIN: delete a room */
+    @SuppressWarnings("null")
     public void deleteRoom(Long roomId) {
         if (!roomRepo.existsById(roomId)) {
             throw new CustomException("Room not found");
@@ -57,6 +60,7 @@ public class RoomService {
     }
 
     /** Public: get available rooms for a hotel within a date range */
+    @SuppressWarnings("null")
     public List<Room> getAvailableRooms(Long hotelId, LocalDate checkIn, LocalDate checkOut) {
         if (checkIn == null || checkOut == null || !checkOut.isAfter(checkIn)) {
             throw new CustomException("Invalid date range: checkOut must be after checkIn");
@@ -73,11 +77,12 @@ public class RoomService {
         return roomRepo.findAvailableRooms(hotelId, checkIn, checkOut);
     }
 
+    @SuppressWarnings("null")
     private void ensureDefaultRoom(Long hotelId) {
         Hotel hotel = hotelRepo.findById(hotelId)
                 .orElseThrow(() -> new CustomException("Hotel not found"));
 
-        var existingRoom = roomRepo.findFirstByHotelIdOrderByIdAsc(hotelId);
+        java.util.Optional<Room> existingRoom = roomRepo.findFirstByHotelIdOrderByIdAsc(hotelId);
         if (existingRoom.isPresent()) {
             Room room = existingRoom.get();
             boolean changed = false;

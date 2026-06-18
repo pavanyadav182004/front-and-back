@@ -25,7 +25,8 @@ public class HotelService {
     private final PaymentRepository paymentRepo;
     private final ReviewRepository reviewRepo;
 
-    public HotelService(HotelRepository hotelRepo, RoomRepository roomRepo, BookingRepository bookingRepo, PaymentRepository paymentRepo, ReviewRepository reviewRepo) {
+    public HotelService(HotelRepository hotelRepo, RoomRepository roomRepo, BookingRepository bookingRepo,
+            PaymentRepository paymentRepo, ReviewRepository reviewRepo) {
         this.hotelRepo = hotelRepo;
         this.roomRepo = roomRepo;
         this.bookingRepo = bookingRepo;
@@ -35,6 +36,7 @@ public class HotelService {
 
     public Hotel addHotel(Hotel hotel) {
         applyHotelDefaults(hotel);
+        @SuppressWarnings("null")
         Hotel savedHotel = hotelRepo.save(hotel);
         createOrUpdateDefaultRoom(savedHotel);
         return savedHotel;
@@ -50,13 +52,7 @@ public class HotelService {
         existing.setPricePerNight(hotel.getPricePerNight());
         existing.setRating(hotel.getRating());
 
-
         existing.setImages(hotel.getImages());
-
-
-    
-
-
 
         existing.setRoomType(hotel.getRoomType());
         existing.setAvailable(hotel.isAvailable());
@@ -71,6 +67,7 @@ public class HotelService {
     }
 
     @Transactional
+    @SuppressWarnings("null")
     public void deleteHotel(Long id) {
         if (!hotelRepo.existsById(id)) {
             throw new RuntimeException("Hotel not found");
@@ -88,6 +85,7 @@ public class HotelService {
         return hotelRepo.findAll();
     }
 
+    @SuppressWarnings("null")
     public Hotel getHotel(Long id) {
         return hotelRepo.findById(id).orElseThrow(() -> new RuntimeException("Hotel not found"));
     }
@@ -101,7 +99,8 @@ public class HotelService {
 
     private void applyHotelDefaults(Hotel hotel) {
         if (hotel.getLocation() == null || hotel.getLocation().isBlank()) {
-            hotel.setLocation((hotel.getCity() == null ? "" : hotel.getCity()) + " - " + (hotel.getAddress() == null ? "" : hotel.getAddress()));
+            hotel.setLocation((hotel.getCity() == null ? "" : hotel.getCity()) + " - "
+                    + (hotel.getAddress() == null ? "" : hotel.getAddress()));
         }
         if (hotel.getRoomType() == null || hotel.getRoomType().isBlank()) {
             hotel.setRoomType("Luxury Room");

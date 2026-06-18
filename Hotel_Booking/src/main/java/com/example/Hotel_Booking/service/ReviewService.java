@@ -21,7 +21,8 @@ public class ReviewService {
     private final BookingRepository bookingRepository;
     private final EmailService emailService;
 
-    public ReviewService(ReviewRepository reviewRepository, BookingRepository bookingRepository, EmailService emailService) {
+    public ReviewService(ReviewRepository reviewRepository, BookingRepository bookingRepository,
+            EmailService emailService) {
         this.reviewRepository = reviewRepository;
         this.bookingRepository = bookingRepository;
         this.emailService = emailService;
@@ -41,6 +42,7 @@ public class ReviewService {
             throw new CustomException("Comment is required");
         }
 
+        @SuppressWarnings("null")
         Booking booking = bookingRepository.findById(dto.getBookingId())
                 .orElseThrow(() -> new CustomException("Booking not found"));
 
@@ -62,7 +64,7 @@ public class ReviewService {
         review.setComment(dto.getComment().trim());
 
         Review savedReview = reviewRepository.save(review);
-        
+
         // 🔥 Send email notification
         emailService.sendReviewConfirmation(savedReview);
 

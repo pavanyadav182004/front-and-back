@@ -3,7 +3,6 @@ package com.example.Hotel_Booking.service;
 import org.springframework.stereotype.Service;
 
 import com.example.Hotel_Booking.entity.Booking;
-import com.example.Hotel_Booking.entity.Payment;
 import com.example.Hotel_Booking.enums.BookingStatus;
 import com.example.Hotel_Booking.enums.PaymentStatus;
 import com.example.Hotel_Booking.exception.CustomException;
@@ -22,20 +21,22 @@ public class PaymentService {
     private final RazorpayClient razorpayClient;
     private final EmailService emailService;
 
-    public PaymentService(PaymentRepository paymentRepo, BookingRepository bookingRepo, RazorpayClient razorpayClient, EmailService emailService) {
+    public PaymentService(PaymentRepository paymentRepo, BookingRepository bookingRepo, RazorpayClient razorpayClient,
+            EmailService emailService) {
         this.paymentRepo = paymentRepo;
         this.bookingRepo = bookingRepo;
         this.razorpayClient = razorpayClient;
         this.emailService = emailService;
     }
 
+    @SuppressWarnings("null")
     public String createOrder(Long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new CustomException("Booking not found"));
 
         try {
             JSONObject orderRequest = new JSONObject();
-            orderRequest.put("amount", (int)(booking.getTotalPrice() * 100)); // amount in paise
+            orderRequest.put("amount", (int) (booking.getTotalPrice() * 100)); // amount in paise
             orderRequest.put("currency", "INR");
             orderRequest.put("receipt", "booking_rcpt_" + bookingId);
 

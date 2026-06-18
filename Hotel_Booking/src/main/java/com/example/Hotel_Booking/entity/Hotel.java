@@ -2,8 +2,6 @@ package com.example.Hotel_Booking.entity;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -15,24 +13,24 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="hotels")
+@Table(name = "hotels")
 public class Hotel {
-    
+
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable= false)
+
+    @Column(nullable = false)
     private String name;
-    
-    @Column(nullable= false)
+
+    @Column(nullable = false)
     private String city;
 
     @Column(nullable = false)
     private String address;
 
     @Column(name = "location", nullable = false, updatable = true)
-private String location;
+    private String location;
 
     @Column(length = 2000)
     private String description;
@@ -40,35 +38,36 @@ private String location;
     @Column(length = 500)
     private String heading;
 
-   private double pricePerNight;
+    private double pricePerNight;
     private double rating;
     @ElementCollection
     @Column(columnDefinition = "TEXT")
     private List<String> images;
-    
-   private String roomType;
+
+    private String roomType;
     private boolean available = true;
 
     @ElementCollection
     private List<String> amenities;
-    
+
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms;
 
-    public Hotel() {}
+    public Hotel() {
+    }
 
-    public Hotel(Long id, String name, String city, String address, String location, String description, double pricePerNight, double rating, List<String> images ) {
+    public Hotel(Long id, String name, String city, String address, String location, String description,
+            double pricePerNight, double rating, List<String> images) {
         this.id = id;
         this.name = name;
         this.city = city;
         this.address = address;
-        this.location= location;
+        this.location = location;
         this.description = description;
-       this.pricePerNight = pricePerNight;
+        this.pricePerNight = pricePerNight;
         this.rating = rating;
         this.images = images;
 
-       
     }
 
     public List<Room> getRooms() {
@@ -158,15 +157,6 @@ private String location;
     public void setImages(List<String> images) {
         this.images = images;
     }
-
-
-
-
-
-
-
-
-
 
     public String getRoomType() {
         return roomType;
