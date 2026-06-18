@@ -123,7 +123,7 @@ public class EmailService {
             return;
         }
         if (from.isEmpty()) {
-            from = "pavanyadav182004@gmail.com";
+            from = "Pavanyadav182004@gmail.com";
         }
 
         try {
