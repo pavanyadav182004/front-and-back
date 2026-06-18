@@ -41,7 +41,7 @@ public class Hotel {
     private double pricePerNight;
     private double rating;
     @ElementCollection
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private List<String> images;
 
     private String roomType;

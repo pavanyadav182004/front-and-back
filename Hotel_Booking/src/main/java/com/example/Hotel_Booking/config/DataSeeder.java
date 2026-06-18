@@ -195,33 +195,35 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedTestUsers() {
-        // Check if test users already exist
-        java.util.Optional<User> existingUser = userRepository.findByEmail("user@test.com");
+        // Check if admin@pavan.com already exists
+        java.util.Optional<User> existingUser = userRepository.findByEmail("admin@pavan.com");
         if (existingUser.isPresent()) {
-            System.out.println("✓ Test users already exist");
+            System.out.println("✓ Custom Admin already exists");
             return;
         }
 
         try {
             // Create test user
-            User testUser = new User();
-            testUser.setName("Test User");
-            testUser.setEmail("user@test.com");
-            testUser.setPassword(passwordEncoder.encode("password123"));
-            testUser.setRole(Role.USER);
-            testUser.setMobileNo("9876543210");
-            testUser.setGender("Not Specified");
-            User savedUser = userRepository.save(testUser);
-            System.out.println("✓ Created test user: " + savedUser.getEmail());
+            if (userRepository.findByEmail("user@test.com").isEmpty()) {
+                User testUser = new User();
+                testUser.setName("Test User");
+                testUser.setEmail("user@test.com");
+                testUser.setPassword(passwordEncoder.encode("password123"));
+                testUser.setRole(Role.USER);
+                testUser.setMobileNo("9876543210");
+                testUser.setGender("Not Specified");
+                userRepository.save(testUser);
+                System.out.println("✓ Created test user: user@test.com");
+            }
 
-            // Create test admin
+            // Create custom admin
             User testAdmin = new User();
-            testAdmin.setName("Test Admin");
-            testAdmin.setEmail("admin@test.com");
-            testAdmin.setPassword(passwordEncoder.encode("admin123"));
+            testAdmin.setName("Pavan Yadav");
+            testAdmin.setEmail("admin@pavan.com");
+            testAdmin.setPassword(passwordEncoder.encode("admin@123"));
             testAdmin.setRole(Role.ADMIN);
             testAdmin.setMobileNo("9876543211");
-            testAdmin.setGender("Not Specified");
+            testAdmin.setGender("Male");
             User savedAdmin = userRepository.save(testAdmin);
             System.out.println("✓ Created test admin: " + savedAdmin.getEmail());
         } catch (Exception e) {

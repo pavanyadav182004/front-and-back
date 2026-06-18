@@ -1,14 +1,9 @@
 package com.example.Hotel_Booking.service;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,17 +11,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    @Value("${spring.mail.host:smtp.gmail.com}")
-    private String host;
-
     @Value("${spring.mail.username:}")
-    private String username;
+    private String senderEmail;
 
-    @Value("${spring.mail.password:}")
-    private String password;
-
-    @Value("${spring.mail.port:465}")
-    private int port;
+    @Value("${BREVO_API_KEY:}")
+    private String brevoApiKey;
 
     public void sendOtp(String to, String subject, String otp) {
         String body = "Your Hotel Booking OTP is " + otp + ". It is valid for 5 minutes.";
@@ -126,82 +115,70 @@ public class EmailService {
     }
 
     private void sendEmail(String to, String subject, String body, boolean isHtml) {
-        String configuredUsername = clean(username);
-        String configuredPassword = clean(password).replace(" ", "");
+        String apiKey = brevoApiKey != null ? brevoApiKey.trim() : "";
+        String from = senderEmail != null ? senderEmail.trim() : "";
 
-        if (configuredUsername.isBlank() || configuredPassword.isBlank()
-                || "yourgmail@gmail.com".equalsIgnoreCase(configuredUsername)
-                || "your-16-character-app-password".equalsIgnoreCase(configuredPassword)) {
-            return; // Silently skip if not configured, or log it
+        if (apiKey.isEmpty()) {
+            System.err.println("Email skipped: BREVO_API_KEY not configured");
+            return;
+        }
+        if (from.isEmpty()) {
+            from = "pavanyadav182004@gmail.com";
         }
 
-        try (
-                SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(host, port);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8))
-        ) {
-            expectOk(reader);
-            send(writer, reader, "EHLO localhost");
-            send(writer, reader, "AUTH LOGIN");
-            send(writer, reader, Base64.getEncoder().encodeToString(configuredUsername.getBytes(StandardCharsets.UTF_8)));
-            send(writer, reader, Base64.getEncoder().encodeToString(configuredPassword.getBytes(StandardCharsets.UTF_8)));
-            send(writer, reader, "MAIL FROM:<" + configuredUsername + ">");
-            send(writer, reader, "RCPT TO:<" + to + ">");
-            send(writer, reader, "DATA");
+        try {
+            URL url = new URL("https://api.brevo.com/v3/smtp/email");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("accept", "application/json");
+            conn.setRequestProperty("api-key", apiKey);
+            conn.setRequestProperty("content-type", "application/json");
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
 
-            writer.write("From: " + configuredUsername + "\r\n");
-            writer.write("To: " + to + "\r\n");
-            writer.write("Subject: " + subject + "\r\n");
-            if (isHtml) {
-                writer.write("Content-Type: text/html; charset=UTF-8\r\n");
+            // Escape special characters for JSON
+            String escapedBody = body.replace("\\", "\\\\")
+                                     .replace("\"", "\\\"")
+                                     .replace("\n", "\\n")
+                                     .replace("\r", "\\r")
+                                     .replace("\t", "\\t");
+            String escapedSubject = subject.replace("\\", "\\\\")
+                                           .replace("\"", "\\\"");
+
+            String contentType = isHtml ? "text/html" : "text/plain";
+
+            String jsonPayload = "{"
+                    + "\"sender\":{\"name\":\"Hotel Booking\",\"email\":\"" + from + "\"},"
+                    + "\"to\":[{\"email\":\"" + to + "\"}],"
+                    + "\"subject\":\"" + escapedSubject + "\","
+                    + (isHtml
+                        ? "\"htmlContent\":\"" + escapedBody + "\""
+                        : "\"textContent\":\"" + escapedBody + "\"")
+                    + "}";
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonPayload.getBytes(StandardCharsets.UTF_8));
+                os.flush();
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode >= 200 && responseCode < 300) {
+                System.out.println("Email sent successfully to " + to);
             } else {
-                writer.write("Content-Type: text/plain; charset=UTF-8\r\n");
+                // Read error response
+                java.io.InputStream errorStream = conn.getErrorStream();
+                if (errorStream != null) {
+                    String errorBody = new String(errorStream.readAllBytes(), StandardCharsets.UTF_8);
+                    System.err.println("Brevo email failed (HTTP " + responseCode + "): " + errorBody);
+                } else {
+                    System.err.println("Brevo email failed with HTTP " + responseCode);
+                }
             }
-            writer.write("\r\n");
-            writer.write(body + "\r\n");
-            writer.write(".\r\n");
-            writer.flush();
-            expectOk(reader);
-            send(writer, reader, "QUIT");
+            conn.disconnect();
         } catch (Exception ex) {
-            // Log error but don't break the payment flow
+            // Log error but don't break the flow
             System.err.println("Email failed: " + ex.getMessage());
-        }
-    }
-
-    private String clean(String value) {
-        if (value == null) {
-            return "";
-        }
-        String cleaned = value.trim();
-        if ((cleaned.startsWith("\"") && cleaned.endsWith("\"")) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
-            return cleaned.substring(1, cleaned.length() - 1).trim();
-        }
-        return cleaned;
-    }
-
-    private void send(BufferedWriter writer, BufferedReader reader, String command) throws Exception {
-        writer.write(command + "\r\n");
-        writer.flush();
-        expectOk(reader);
-    }
-
-    private void expectOk(BufferedReader reader) throws Exception {
-        String line = reader.readLine();
-        if (line == null) {
-            throw new RuntimeException("SMTP server closed the connection");
-        }
-
-        String code = line.length() >= 3 ? line.substring(0, 3) : "";
-        while (line.length() > 3 && line.charAt(3) == '-') {
-            line = reader.readLine();
-            if (line == null) {
-                throw new RuntimeException("SMTP server closed the connection");
-            }
-        }
-
-        if (!code.startsWith("2") && !code.startsWith("3")) {
-            throw new RuntimeException("SMTP error: " + line);
         }
     }
 }
