@@ -219,21 +219,6 @@ public class AuthService {
         if (!isValidEmail(email)) {
             return new ResponseDTO(false, "Valid email is required", null);
         }
-        if (dto.getVerificationToken() == null || dto.getVerificationToken().isBlank()) {
-            return new ResponseDTO(false, "Please verify email OTP before registration", null);
-        }
-
-        VerifiedRegistration verified = verifiedRegistrations.get(dto.getVerificationToken());
-        if (verified == null) {
-            return new ResponseDTO(false, "Email verification is required", null);
-        }
-        if (verified.expiresAt() < System.currentTimeMillis()) {
-            verifiedRegistrations.remove(dto.getVerificationToken());
-            return new ResponseDTO(false, "Email verification expired. Please request OTP again.", null);
-        }
-        if (!verified.email().equals(email) || verified.role() != expectedRole) {
-            return new ResponseDTO(false, "Email verification does not match this registration", null);
-        }
 
         return new ResponseDTO(true, "OK", null);
     }
