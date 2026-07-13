@@ -11,6 +11,6 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "mysql2": "^3.22.5"
+    "mysql2": "^3.22.6"
   }
 }
