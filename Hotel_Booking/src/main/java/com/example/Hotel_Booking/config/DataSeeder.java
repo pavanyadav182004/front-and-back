@@ -37,9 +37,19 @@ public class DataSeeder implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
     @Override
     @Transactional
     public void run(String... args) {
+        try {
+            jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS hotel_amenities (id BIGINT AUTO_INCREMENT PRIMARY KEY, hotel_id BIGINT NOT NULL, amenity_name VARCHAR(255))");
+            jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS hotel_images (id BIGINT AUTO_INCREMENT PRIMARY KEY, hotel_id BIGINT NOT NULL, images LONGTEXT)");
+        } catch (Exception e) {
+            System.err.println("Warning: Manual table creation failed: " + e.getMessage());
+        }
+
         // Seed test users first
         seedTestUsers();
 
