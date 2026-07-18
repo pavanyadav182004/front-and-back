@@ -21,16 +21,16 @@ public class Hotel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String name;
 
     @Column(nullable = false)
     private String city;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2000)
     private String address;
 
-    @Column(name = "location", nullable = false, updatable = true)
+    @Column(name = "location", nullable = false, updatable = true, length = 2000)
     private String location;
 
     @Column(length = 2000)
