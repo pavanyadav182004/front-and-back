@@ -33,5 +33,19 @@ public class DatabaseFix implements CommandLineRunner {
         } catch (Exception e) {
             System.out.println("Could not alter 'name' column: " + e.getMessage());
         }
+        
+        try {
+            jdbcTemplate.execute("ALTER TABLE hotel_images MODIFY COLUMN images LONGTEXT;");
+            System.out.println("Successfully altered 'images' column in hotel_images to LONGTEXT.");
+        } catch (Exception e) {
+            System.out.println("Could not alter 'images' column in hotel_images: " + e.getMessage());
+        }
+        
+        try {
+            jdbcTemplate.execute("ALTER TABLE hotels_images MODIFY COLUMN images LONGTEXT;");
+            System.out.println("Successfully altered 'images' column in hotels_images to LONGTEXT.");
+        } catch (Exception e) {
+            System.out.println("Could not alter 'images' column in hotels_images: " + e.getMessage());
+        }
     }
 }

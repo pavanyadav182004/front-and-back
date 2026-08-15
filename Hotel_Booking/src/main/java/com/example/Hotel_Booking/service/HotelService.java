@@ -24,14 +24,26 @@ public class HotelService {
     private final BookingRepository bookingRepo;
     private final PaymentRepository paymentRepo;
     private final ReviewRepository reviewRepo;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     public HotelService(HotelRepository hotelRepo, RoomRepository roomRepo, BookingRepository bookingRepo,
-            PaymentRepository paymentRepo, ReviewRepository reviewRepo) {
+            PaymentRepository paymentRepo, ReviewRepository reviewRepo, org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
         this.hotelRepo = hotelRepo;
         this.roomRepo = roomRepo;
         this.bookingRepo = bookingRepo;
         this.paymentRepo = paymentRepo;
         this.reviewRepo = reviewRepo;
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            jdbcTemplate.execute("ALTER TABLE hotel_images MODIFY images LONGTEXT");
+            System.out.println("Altered hotel_images.images to LONGTEXT successfully.");
+        } catch (Exception e) {
+            System.out.println("Could not alter hotel_images: " + e.getMessage());
+        }
     }
 
     public Hotel addHotel(Hotel hotel) {
