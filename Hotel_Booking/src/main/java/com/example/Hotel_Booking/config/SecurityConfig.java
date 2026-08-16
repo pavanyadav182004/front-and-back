@@ -41,6 +41,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/hotels/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/rooms/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/offers/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/offers").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/contact/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/bookings/available").permitAll()
                         // Admin-only writes
