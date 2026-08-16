@@ -42,7 +42,8 @@ public class Hotel {
     private double pricePerNight;
     private double rating;
     @ElementCollection
-    @Column(columnDefinition = "LONGTEXT")
+    @CollectionTable(name = "hotel_images", joinColumns = @jakarta.persistence.JoinColumn(name = "hotel_id"))
+    @Column(name = "images", columnDefinition = "LONGTEXT")
     private List<String> images;
 
     private String roomType;
